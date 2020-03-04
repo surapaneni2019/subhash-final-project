@@ -19,14 +19,13 @@ export default function Welcome() {
         <HashRouter>
             <div>
                 <h1> Welcome to my social network </h1>
-
+                <img src="big_logo.png" alt="logo" />
                 <div>
                     <Route exact component={Register} path="/" />
                     <Route component={Login} path="/login" />
+                    <Route component={ResetPassword} path="/reset" />
                     <a href="/logout">logout</a>
                 </div>
-
-                <Registration />
             </div>
         </HashRouter>
     );

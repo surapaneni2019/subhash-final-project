@@ -5,6 +5,8 @@ const db = require("./db.js");
 const { hash } = require("./util/bc.js");
 const cookieSession = require("cookie-session");
 
+const ses = require("./ses.js");
+
 app.use(compression());
 
 app.use(express.static("./public"));
@@ -43,30 +45,19 @@ if (process.env.NODE_ENV != "production") {
     app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
 
-app.use(express.json());
-app.use(require('cookie-session') ({
-    secret: 'whatever'
-    maxAge: 1000 * 60 * 60 *24 * 365
-}));
+// app.use(express.json());
+// app.use(require('cookie-session') ({
+//     secret: 'whatever'
+//     maxAge: 1000 * 60 * 60 *24 * 365
+// })
+// );
 
-app.use(require('csurf')());
-app.use((req,res,next) => {
-    res.set('x-frame-option', deny);
-    res.cookie('funkychicken', req.csrfToken());
+app.use(require("csurf")());
+app.use((req, res, next) => {
+    res.set("x-frame-option", deny);
+    res.cookie("funkychicken", req.csrfToken());
     next();
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.get("./welcome", function(req, res) {
     console.log("cookie", req.session.userId);
