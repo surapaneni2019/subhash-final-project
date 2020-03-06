@@ -13,4 +13,23 @@ function registerUser(first, last, email, password) {
     );
 }
 
+function verifyUser(email) {
+    return db.query(`SELECT password, id FROM users where email=$1`, [email]);
+}
+
+function insertResetCode(email, code) {
+    return db.query(
+        `INSERT INTO password_reset_codes(code, email) VALUES($1, $2) RETURNING id`,
+        [email, code]
+    );
+}
+
+function verifyCode() {
+    return db.query(`SELECT * FROM my_table
+WHERE CURRENT_TIMESTAMP - created_at < INTERVAL '10 minutes'`);
+
+
 exports.registerUser = registerUser;
+exports.verifyUser = verifyUser;
+exports.insertResetCode = insertResetCode;
+exports.verifyCode = verifyCode;

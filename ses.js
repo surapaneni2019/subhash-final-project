@@ -16,9 +16,10 @@ const ses = new aws.SES({
 //if using ownaccount use dublin or frankfurt regions in the region field...
 
 exports.sendEmail = function(to, subject, message) {
+    console.log("message: ", message);
     return ses
         .sendEmail({
-            Source: "Funky Chicken <funky.chicken@spiced.academy>",
+            Source: "Subhash <surapaneni_subhash1@yahoo.co.in>",
             Destination: {
                 ToAddresses: [to]
             },
@@ -34,8 +35,8 @@ exports.sendEmail = function(to, subject, message) {
             }
         })
         .promise()
-        .then(() => console.log("it worked!"))
-        .catch(err => console.log(err));
+        .then(() => console.log("Its functioning!"))
+        .catch(error => console.log(error));
 };
 //IN the above function in source section type your real email and the name..
 //wont keep the submit code option data in the cookie to prvent users not to

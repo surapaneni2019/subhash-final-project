@@ -1,8 +1,8 @@
 import axios from "axios";
 
-var copy = axios.create({
+var instance = axios.create({
     xsrfCookieName: "csrftoken",
     xsrfHeaderName: "csrf-token"
 });
 
-export default copy;
+export default instance;

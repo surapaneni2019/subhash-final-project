@@ -4,7 +4,11 @@
 
 import React from "react";
 import Registration from "./registration";
-import axios from "./axios";
+import Login from "./login";
+import ResetPassword from "./reset";
+import { Link } from "react-router-dom";
+
+// import axios from "./axios";
 import { HashRouter, Route } from "react-router-dom";
 
 //axios.js is run from the above cmd line so that the copy of axios run everytime for the
@@ -12,22 +16,24 @@ import { HashRouter, Route } from "react-router-dom";
 //welcome is responsible for rendering the resgistration and the login pages
 
 export default function Welcome() {
-    axios.post("/some-url", {
-        funky: "chicken"
-    });
+    // axios.post("/some-url", {
+    //     funky: "chicken"
+    // });
     return (
-        <HashRouter>
-            <div>
-                <h1> Welcome to my social network </h1>
-                <img src="big_logo.png" alt="logo" />
+        <div id="welcome">
+            <h1> Welcome to my social network </h1>
+            (// <img src="big_logo.png" alt="logo" />)
+            <HashRouter>
                 <div>
-                    <Route exact component={Register} path="/" />
-                    <Route component={Login} path="/login" />
-                    <Route component={ResetPassword} path="/reset" />
-                    <a href="/logout">logout</a>
+                    <Route exact path="/" component={Registration} />
+                    <Route exact path="/login" component={Login} />
+                    <Route exact path="/reset" component={ResetPassword} />
+                    <Link to="/login"> Login </Link>
+                    <Link to="/reset"> Reset your Password </Link>
+                    (// <a href="/logout">logout</a>)
                 </div>
-            </div>
-        </HashRouter>
+            </HashRouter>
+        </div>
     );
 }
 

@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import Welcome from "./welcome";
 //if you use the default in the export no need of curly paranthesis enclosed for
 //the Welcome function...
-import axios from "axios";
+// import App from "./app";
+// import axios from "./axios";
 
 let component;
 
@@ -19,6 +20,13 @@ if (location.pathname === "/welcome") {
     component = <p>logo</p>;
 }
 
+// ReactDOM.render(
+//     location.pathname == "/welcome" ? <Welcome /> : <App />,
+//     document.querySelector("main")
+// );
+
+//This is the wrapper like and the main Component and the other components
+//nested within it...
 ReactDOM.render(component, document.querySelector("main"));
 
 //we only render ReactDOM only once in our application which is in general in

@@ -1,18 +1,18 @@
 //src/registration.js
 
 import React from "react";
-import axios from "axios";
+import axios from "./axios";
 
 // creating the class component so as to interact with the user...
 export default class Registration extends React.Component {
     constructor() {
         super();
         this.state = {
-            // error: false,
-            // error_first: false,
-            // error_last: false,
-            // error_email: false,
-            // error_password: false
+            error: false,
+            error_emptyfields: false,
+            error_last: false,
+            error_email: false,
+            error_password: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.submitClick = this.submitClick.bind(this);
@@ -37,7 +37,7 @@ export default class Registration extends React.Component {
     //we submit the resistration inf. when user clicks the submit button..
     submitClick(e) {
         e.preventDefault();
-        // const { first, last, email, password } = this.state;
+        const { first, last, email, password } = this.state;
         console.log("this.state: ", this.state);
 
         if (!this.state.first || this.state.first.length < 2) {
@@ -104,6 +104,9 @@ export default class Registration extends React.Component {
                     />
                     <button onClick={this.submitClick}> Submit </button>
                 </form>
+                {this.state.error && (
+                    <p className="error">Ah Uh! something gone wrong!!</p>
+                )}
 
                 {this.state.error_first && (
                     <p className="error">
