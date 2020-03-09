@@ -25,9 +25,9 @@ function insertResetCode(email, code) {
 }
 
 function verifyCode() {
-    return db.query(`SELECT * FROM my_table
+    return db.query(`SELECT * FROM password_reset_codes
 WHERE CURRENT_TIMESTAMP - created_at < INTERVAL '10 minutes'`);
-
+}
 
 exports.registerUser = registerUser;
 exports.verifyUser = verifyUser;

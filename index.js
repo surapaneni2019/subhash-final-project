@@ -38,17 +38,6 @@ app.use(
     })
 );
 
-if (process.env.NODE_ENV != "production") {
-    app.use(
-        "/bundle.js",
-        require("http-proxy-middleware")({
-            target: "http://localhost:8081/"
-        })
-    );
-} else {
-    app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
-}
-
 // app.use(express.json());
 // app.use(require('cookie-session') ({
 //     secret: 'whatever'
@@ -63,6 +52,17 @@ app.use((req, res, next) => {
     res.cookie("csrfToken", req.csrfToken());
     next();
 });
+
+if (process.env.NODE_ENV != "production") {
+    app.use(
+        "/bundle.js",
+        require("http-proxy-middleware")({
+            target: "http://localhost:8081/"
+        })
+    );
+} else {
+    app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
+}
 
 app.get("./welcome", function(req, res) {
     // console.log("cookie", req.session.userId);
@@ -131,6 +131,8 @@ app.post("/login/submit", (req, res) => {
                         console.log("req.session.userId", req.session.userId);
 
                         return res.json(result);
+                    } else {
+                        return res.sendStatus(500);
                     }
                 })
                 .catch(error => {
@@ -176,32 +178,61 @@ app.post("/password/reset/start", (req, res) => {
 app.post("/password/reset/verify", (req, res) => {
     let inputCode = req.body.code;
     let password = req.body.password;
+    console.log("inputCode: ", inputCode);
+    console.log("req.body.password: ", req.body.password);
+
     db.verifyCode()
         .then(result => {
+            const matchingitem = result.rows.filter(
+                item => item.code === inputCode
+            );
 
-            let codeDB = result.rows.password;
-            compare(inputCode, codeDB)
+            let codeDB = matchingitem[0].code;
+            console.log("codeDB", codeDB);
+            console.log("inputCode", inputCode);
+
+            if (codeDB === inputCode) {
+                console.log("both are the same");
+            } else {
+                console.log("incase if statement is failing");
+            }
+
+            compare(codeDB, inputCode)
                 .then(matchValue => {
-                  console.log("matchValue of compare", matchValue);
-                  if (matchValue) {
-                    hash(password).then(hashedPw => {
-                    console.log("hashed password from /register", hashedPw);
-                    password = hashedPw;
+                    console.log("matchValue of compare", matchValue);
+                    if (matchValue) {
+                        hash(password)
+                            .then(hashedPw => {
+                                console.log(
+                                    "hashed password from /password/reset/verify",
+                                    hashedPw
+                                );
+                                password = hashedPw;
 
-                    result.rows[0].password = password;
+                                result.rows[0].password = password;
 
-                    return res.json({ verified: true });
-
-                  })
-                  .catch(error => {
-                      console.log("error", error);
-                      return res.sendStatus(500);
-                  })
-                }
-
+                                return res.json({ verified: true });
+                            })
+                            .catch(error => {
+                                console.log("error", error);
+                                return res.sendStatus(500);
+                            });
+                    } else {
+                        return res.sendStatus(500);
+                    }
+                })
+                .catch(err => {
+                    console.log("error", err);
+                    return res.sendStatus(500);
+                });
+        })
+        .catch(err => {
+            console.log("error", err);
+            return res.sendStatus(500);
+        });
 });
 
-//DONOT DELETE OR COMMENT IT OUT BELOW CODE///
+//DONOT DELETE OR COMMENT IT OUT BELOW CODE
 app.get("*", function(req, res) {
     if (!req.session.userId) {
         res.redirect("welcome");
@@ -209,7 +240,7 @@ app.get("*", function(req, res) {
         res.sendFile(__dirname + "/index.html");
     }
 });
-//DONOT DELETE OR COMMENT IT OUT ABOVE CODE///
+//DONOT DELETE OR COMMENT IT OUT ABOVE CODE
 app.listen(8080, function() {
-    console.log("I'm listening.");
+    console.log("I am listening.");
 });

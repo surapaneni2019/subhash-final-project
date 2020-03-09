@@ -19,7 +19,7 @@ exports.sendEmail = function(to, subject, message) {
     console.log("message: ", message);
     return ses
         .sendEmail({
-            Source: "Subhash <surapaneni_subhash1@yahoo.co.in>",
+            Source: "Subhash <opaque.bus@spicedling.email>",
             Destination: {
                 ToAddresses: [to]
             },
