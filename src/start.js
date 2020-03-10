@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import Welcome from "./welcome";
 //if you use the default in the export no need of curly paranthesis enclosed for
 //the Welcome function...
-// import App from "./app";
-// import axios from "./axios";
+import App from "./app";
+import axios from "./axios";
 
 let component;
 

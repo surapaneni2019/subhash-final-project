@@ -5,7 +5,7 @@
 import React from "react";
 import Registration from "./registration";
 import Login from "./login";
-import ResetPassword from ".reset";
+import ResetPassword from "./reset";
 import { Link } from "react-router-dom";
 
 // import axios from "./axios";
