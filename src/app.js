@@ -9,6 +9,8 @@ import React from "react";
 //the App...
 import axios from "./axios";
 //import for the browser router purpose...a new import file..in part 6
+import profilePic from "./profilepic";
+import Uploader from "./uploader";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -21,10 +23,16 @@ export default class App extends React.Component {
         };
     }
     componentDidMount() {
-        axios.get("/user").then(({ data }) => {
-            this.setState(data);
-        });
+        axios
+            .get("/user")
+            .then(({ data }) => {
+                this.setState(data);
+            })
+            .catch(function(error) {
+                console.log("error in componentDidMount App", error);
+            });
     }
+    //to check if the ajax request is complete or not..
     render() {
         if (!this.state.id) {
             return <img src="/progressbar.gif" alt="loading.." />; //if ajax request not completes it returns null..

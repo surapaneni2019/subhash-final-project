@@ -10,6 +10,33 @@ const cryptoRandomString = require("crypto-random-string");
 const secretCode = cryptoRandomString({
     length: 6
 });
+const s3 = require("./s3.js");
+
+//////////FILE UPLOAD BOILERPLATE CODE /////////////////
+const multer = require("multer");
+const uidSafe = require("uid-safe");
+const path = require("path");
+const { s3Url } = require("./config");
+
+const diskStorage = multer.diskStorage({
+    destination: function(req, file, callback) {
+        callback(null, __dirname + "/uploads");
+    },
+    filename: function(req, file, callback) {
+        uidSafe(24).then(function(uid) {
+            callback(null, uid + path.extname(file.originalname));
+        });
+    }
+});
+
+//the uploader is an object
+const uploader = multer({
+    storage: diskStorage,
+    limits: {
+        fileSize: 2097152
+    }
+});
+//////////FILE UPLOAD BOILERPLATE CODE ENDS HERE/////////////////
 
 app.use(compression());
 
@@ -45,7 +72,7 @@ app.use(
 // })
 // );
 
-app.use(require("csurf")());
+app.use(csurf());
 //we keep the token in a cookie and it matches the things you pass on ..
 app.use((req, res, next) => {
     res.set("x-frame-options", "deny");
@@ -90,7 +117,7 @@ app.post("/registration/submit", (req, res) => {
                 //we are here setting the req.session.userId in the below cmd line..
                 req.session.userId = result.rows[0].id;
                 console.log(
-                    "req.session.userId in registration: ",
+                    "req.session.userId in registrations form: ",
                     req.session.userId
                 );
                 return res.json(result);
@@ -178,6 +205,7 @@ app.post("/password/reset/start", (req, res) => {
 app.post("/password/reset/verify", (req, res) => {
     let inputCode = req.body.code;
     let password = req.body.password;
+    let id = req.session.userId;
     console.log("inputCode: ", inputCode);
     console.log("req.body.password: ", req.body.password);
 
@@ -188,48 +216,88 @@ app.post("/password/reset/verify", (req, res) => {
             );
 
             let codeDB = matchingitem[0].code;
+            codeDB.trim();
+            inputCode.trim();
             console.log("codeDB", codeDB);
             console.log("inputCode", inputCode);
 
             if (codeDB === inputCode) {
-                console.log("both are the same");
-            } else {
-                console.log("incase if statement is failing");
-            }
+                hash(password)
+                    .then(hashedPw => {
+                        console.log(
+                            "hashed password from /password/reset/verify",
+                            hashedPw
+                        );
+                        password = hashedPw;
 
-            compare(codeDB, inputCode)
-                .then(matchValue => {
-                    console.log("matchValue of compare", matchValue);
-                    if (matchValue) {
-                        hash(password)
-                            .then(hashedPw => {
-                                console.log(
-                                    "hashed password from /password/reset/verify",
-                                    hashedPw
-                                );
-                                password = hashedPw;
+                        req.session.userID = matchingitem[0].id;
 
-                                result.rows[0].password = password;
-
+                        db.updatePassword(password, id)
+                            .then(result => {
                                 return res.json({ verified: true });
                             })
                             .catch(error => {
                                 console.log("error", error);
                                 return res.sendStatus(500);
                             });
-                    } else {
+                    })
+                    .catch(err => {
+                        console.log("error", err);
                         return res.sendStatus(500);
-                    }
-                })
-                .catch(err => {
-                    console.log("error", err);
-                    return res.sendStatus(500);
-                });
+                    });
+            } else {
+                return res.sendStatus(500);
+            }
         })
         .catch(err => {
             console.log("error", err);
             return res.sendStatus(500);
         });
+});
+
+///get user route ///
+app.get("/user", (req, res) => {
+    console.log("req.session.userId", req.session.userId);
+    res.json({ id: req.session.userId });
+});
+
+/// upload profile pic ///
+app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
+    console.log("input", req.body);
+    console.log("file:", req.file);
+
+    if (req.file) {
+        let url = s3Url + req.file.filename;
+        console.log(url);
+        let id = req.session.userId;
+
+        db.addImage(url, id)
+            .then(function(result) {
+                console.log("image result");
+                console.log(result.rows[0].image);
+                res.json({
+                    image: result.rows[0].image
+                });
+            })
+            .catch(error => {
+                console.log("error in upload: ", error);
+            });
+    } else {
+        res.json({
+            success: false
+        });
+    }
+
+    // if (req.file) {
+    //     console.log("req.file.filename", req.file.filename);
+    //
+    //     const url = s3Url.concat(req.file.filename);
+    //     console.log("your Image Url: ", url);
+    //
+    //     return res.json(url);
+    // } else {
+    //     return res.sendStatus(500);
+    // }
 });
 
 //DONOT DELETE OR COMMENT IT OUT BELOW CODE

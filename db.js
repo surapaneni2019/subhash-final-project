@@ -29,7 +29,12 @@ function verifyCode() {
 WHERE CURRENT_TIMESTAMP - created_at < INTERVAL '10 minutes'`);
 }
 
+function addImage(url, id) {
+    return db.query(`UPDATE users SET url=$1 WHERE id=$2`, [url, id]);
+}
+
 exports.registerUser = registerUser;
 exports.verifyUser = verifyUser;
 exports.insertResetCode = insertResetCode;
 exports.verifyCode = verifyCode;
+exports.addImage = addImage;
