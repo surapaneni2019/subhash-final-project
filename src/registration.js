@@ -2,17 +2,14 @@
 
 import React from "react";
 import axios from "./axios";
+import { Link } from "react-router-dom";
 
 // creating the class component so as to interact with the user...
 export default class Registration extends React.Component {
     constructor() {
         super();
         this.state = {
-            error: false,
-            error_emptyfields: false,
-            error_last: false,
-            error_email: false,
-            error_password: false
+            error: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.submitClick = this.submitClick.bind(this);
@@ -36,26 +33,12 @@ export default class Registration extends React.Component {
     }
     //we submit the resistration inf. when user clicks the submit button..
     submitClick(e) {
+        console.log("submitClick is running!!");
         e.preventDefault();
-        const { first, last, email, password } = this.state;
-        console.log("this.state: ", this.state);
-
-        if (!this.state.first || this.state.first.length < 2) {
-            this.setState({ error_first: true });
-            return;
-        } else if (!this.state.last || this.state.last.length < 2) {
-            this.setState({ error_last: true });
-            return;
-        } else if (!this.state.email || this.state.email.length < 3) {
-            this.setState({ error_email: true });
-            return;
-        } else if (!this.state.password || this.state.password.length < 5) {
-            this.setState({ error_password: true });
-            return;
-        }
+        var that = this;
 
         axios
-            .post("/registration/submit", this.state)
+            .post("/registration/submit", that.state)
             .then(function({ data }) {
                 console.log("data in get/ user: ", data);
                 location.replace("/");
@@ -65,7 +48,7 @@ export default class Registration extends React.Component {
                     "error in submit click the registration form Info: ",
                     error
                 );
-                this.setState({ error: true });
+                that.setState({ error: true });
             });
     }
 
@@ -73,6 +56,11 @@ export default class Registration extends React.Component {
         return (
             <div>
                 <h1> Register </h1>
+
+                {this.state.error && (
+                    <span className="error">Ah Uh! something gone wrong!!</span>
+                )}
+
                 <form>
                     <input
                         onChange={this.handleChange}
@@ -104,34 +92,7 @@ export default class Registration extends React.Component {
                     />
                     <button onClick={this.submitClick}> Submit </button>
                 </form>
-                {this.state.error && (
-                    <p className="error">Ah Uh! something gone wrong!!</p>
-                )}
-
-                {this.state.error_first && (
-                    <p className="error">
-                        Ah Uh! something gone wrong! Please be sure to fill out
-                        your first name
-                    </p>
-                )}
-                {this.state.error_last && (
-                    <p className="error">
-                        Ah Uh! something gone wrong! Please be sure to fill out
-                        your last name
-                    </p>
-                )}
-                {this.state.error_email && (
-                    <p className="error">
-                        Ah Uh! something gone wrong!Please be sure to fill out
-                        your emailaddress
-                    </p>
-                )}
-                {this.state.error_password && (
-                    <p className="error">
-                        Ah Uh! something gone wrong!Please be sure your password
-                        consists atleast 5 characters
-                    </p>
-                )}
+                <Link to="/login">Login</Link>
             </div>
         );
     }

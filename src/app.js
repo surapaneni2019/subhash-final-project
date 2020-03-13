@@ -39,8 +39,8 @@ export default class App extends React.Component {
         }
         return (
             <>
-                <img src="/logo.gif" alt="logo" />
-                <ProfilePic
+                <img src="/helpmelogo.jpg" alt="logo" />
+                <profilePic
                     first={this.state.first}
                     last={this.state.last}
                     url={this.state.image}

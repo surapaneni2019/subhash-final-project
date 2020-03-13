@@ -13,14 +13,17 @@ export default class Login extends React.Component {
 
     //handleChange: we store user info in state
     handleChange(e) {
-        this.setState({
-            [e.target.name]: e.target.value
-        }),
-            () => console.log("this.state", this.state);
+        this.setState(
+            {
+                [e.target.name]: e.target.value
+            },
+            () => console.log("this.state", this.state)
+        );
     }
 
     //submit login info by clicking on submit button
     submitClick(e) {
+        console.log("submitClick is running!!");
         e.preventDefault();
 
         const { email, password } = this.state;
@@ -47,7 +50,7 @@ export default class Login extends React.Component {
     render() {
         return (
             <div>
-                <h1> login </h1>
+                <h1> Login </h1>
                 <form>
                     <input
                         onChange={this.handleChange}

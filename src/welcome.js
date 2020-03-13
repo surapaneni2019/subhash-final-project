@@ -16,13 +16,10 @@ import { HashRouter, Route } from "react-router-dom";
 //welcome is responsible for rendering the resgistration and the login pages
 
 export default function Welcome() {
-    // axios.post("/some-url", {
-    //     funky: "chicken"
-    // });
     return (
         <div id="welcome">
             <h1> Welcome to my social network </h1>
-            (// <img src="big_logo.png" alt="logo" />)
+            <img src="helpmelogo.jpg" alt="logo" />
             <HashRouter>
                 <div>
                     <Route exact path="/" component={Registration} />
@@ -30,7 +27,8 @@ export default function Welcome() {
                     <Route exact path="/reset" component={ResetPassword} />
                     <Link to="/login"> Login </Link>
                     <Link to="/reset"> Reset your Password </Link>
-                    (// <a href="/logout">logout</a>)
+                    <b></b>
+                    <a href="/logout">logout</a>
                 </div>
             </HashRouter>
         </div>

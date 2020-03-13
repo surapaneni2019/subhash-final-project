@@ -38,20 +38,21 @@ const uploader = multer({
 });
 //////////FILE UPLOAD BOILERPLATE CODE ENDS HERE/////////////////
 
-app.use(compression());
-
-app.use(express.static("./public"));
 app.use(
     express.urlencoded({
         extended: false
     })
 );
+app.use(express.static("./public"));
 
-//communicating to the server that we will be sending the JSON format
 app.use(express.json());
 app.use((req, res, next) => {
     next();
 });
+
+app.use(compression());
+
+//communicating to the server that we will be sending the JSON format
 
 //cookieSession
 //max age is to set how long the cookie should live inthiscase it survives for
@@ -65,18 +66,11 @@ app.use(
     })
 );
 
-// app.use(express.json());
-// app.use(require('cookie-session') ({
-//     secret: 'whatever'
-//     maxAge: 1000 * 60 * 60 *24 * 365
-// })
-// );
-
 app.use(csurf());
 //we keep the token in a cookie and it matches the things you pass on ..
 app.use((req, res, next) => {
     res.set("x-frame-options", "deny");
-    res.cookie("csrfToken", req.csrfToken());
+    res.cookie("mytoken", req.csrfToken());
     next();
 });
 
@@ -91,7 +85,7 @@ if (process.env.NODE_ENV != "production") {
     app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
 
-app.get("./welcome", function(req, res) {
+app.get("/welcome", function(req, res) {
     // console.log("cookie", req.session.userId);
     if (req.session.userId) {
         res.redirect("/");

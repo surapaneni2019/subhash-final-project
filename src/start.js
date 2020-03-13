@@ -6,6 +6,22 @@ import Welcome from "./welcome";
 import App from "./app";
 import axios from "./axios";
 
+////////REDUX BOILER PLATE///////////////////////////////////
+import { Provider } from "react-redux";
+//provide our App component with redux..
+import { createStore, applyMiddleware } from "redux";
+import reduxPromise from "redux-promise";
+import { composeWithDevTools } from "redux-devtools-extension";
+
+const store = createStore(
+    reducer,
+    composeWithDevTools(applyMiddleware(reduxPromise))
+);
+import reducer from "./reducer";
+////////////////////BOILER PLATE ENDS///////////////////////////////
+
+//we need to create a reducer now...
+
 let component;
 
 //the component or the element variable here it is component variable is the
@@ -17,7 +33,11 @@ if (location.pathname === "/welcome") {
     component = <Welcome />;
 } else {
     //render the logo
-    component = <p>logo</p>;
+    component = (
+        <Provider store={store}>
+            <App />
+        </Provider>
+    );
 }
 
 // ReactDOM.render(
