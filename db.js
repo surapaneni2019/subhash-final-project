@@ -29,12 +29,21 @@ function verifyCode() {
 WHERE CURRENT_TIMESTAMP - created_at < INTERVAL '10 minutes'`);
 }
 
+function updatePassword(password, id) {
+    return db.query(`UPDATE users SET password=$1 WHERE id=$2`, [password, id]);
+}
+
 function addImage(url, id) {
     return db.query(`UPDATE users SET url=$1 WHERE id=$2`, [url, id]);
+}
+function addBio(bio, id) {
+    return db.query(`UPDATE users SET bio=$1 WHERE id=$2`, [bio, id]);
 }
 
 exports.registerUser = registerUser;
 exports.verifyUser = verifyUser;
 exports.insertResetCode = insertResetCode;
 exports.verifyCode = verifyCode;
+exports.updatePassword = updatePassword;
 exports.addImage = addImage;
+exports.addBio = addBio;

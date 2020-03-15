@@ -9,23 +9,40 @@ import React from "react";
 //the App...
 import axios from "./axios";
 //import for the browser router purpose...a new import file..in part 6
-import profilePic from "./profilepic";
 import Uploader from "./uploader";
+import Profile from "./profile";
+import OtherProfile from "./Otherprofile";
+import Users from "./FindPeople";
+import { BrowserRouter, Route } from "react-router-dom";
 
 export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // image: '/default.gif'
-            // uploaderVisible: false //its optional can leave this.state empty as well
-            //its better to keep it shallow(leave empty this object..to not
-            // make it complicated to look it in a big data...)
+            uploaderVisible: false,
+            first: null,
+            last: null,
+            url: null,
+            image: null,
+            id: null,
+            bio: null,
+            setbio: null
+            // its better to keep it shallow(leave empty this object..to not
+            // make it complicated to look it in a big data...)its optional can leave this.state empty as well
         };
+        this.openUploader = this.openUploader.bind(this);
     }
+
+    openUploader() {
+        console.log("click: open uploader");
+        this.setState({ uploaderVisible: true });
+    }
+
     componentDidMount() {
         axios
             .get("/user")
             .then(({ data }) => {
+                console.log("data: ", data);
                 this.setState(data);
             })
             .catch(function(error) {
@@ -38,28 +55,50 @@ export default class App extends React.Component {
             return <img src="/progressbar.gif" alt="loading.." />; //if ajax request not completes it returns null..
         }
         return (
-            <>
-                <img src="/helpmelogo.jpg" alt="logo" />
-                <profilePic
-                    first={this.state.first}
-                    last={this.state.last}
-                    url={this.state.image}
-                    clickHandler={() =>
-                        this.setState({
-                            uploaderVisible: true
-                        })
-                    }
-                />
-                {this.state.uploaderVisible && (
-                    <Uploader
-                        finishedUploading={newUrl =>
-                            this.setState({
-                                image: newUrl
-                            })
-                        }
+            <BrowserRouter>
+                <div>
+                    <div id="head-container">
+                        <img src="/helpmelogo.jpg" alt="logo" />
+                        <img className="profilepic" src={this.state.image} />
+                    </div>
+                    <div id="profile">
+                        <Profile
+                            first={this.state.first}
+                            last={this.state.last}
+                            url={this.state.image}
+                            bio={this.state.bio}
+                            setbio={newBio =>
+                                this.setState({
+                                    bio: newBio
+                                })
+                            }
+                            onClick={this.openUploader}
+                        />
+                    </div>
+                    <Route
+                        path="/user/:id"
+                        render={props => (
+                            <OtherProfile
+                                key={props.match.imageUrl}
+                                match={props.match}
+                                history={props.history}
+                            />
+                        )}
                     />
-                )}
-            </>
+
+                    {this.state.uploaderVisible && (
+                        <Uploader
+                            finishedUploading={newUrl =>
+                                this.setState({
+                                    image: newUrl,
+                                    uploaderVisible: false
+                                })
+                            }
+                        />
+                    )}
+                    <Route path="/users" component={Users} />
+                </div>
+            </BrowserRouter>
         );
     }
 }

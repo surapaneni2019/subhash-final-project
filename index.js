@@ -294,6 +294,24 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
     // }
 });
 
+/////submit bio //////
+app.post("/uploadbio", (req, res) => {
+    let id = req.session.userId;
+    let bio = req.body.bio;
+    console.log("bio", bio);
+
+    console.log("req.body", req.body);
+
+    db.addBio(bio, id)
+        .then(function(result) {
+            console.log("result: ", result);
+            return res.json(bio);
+        })
+        .catch(function(error) {
+            console.log("error in addBio: ", error);
+        });
+});
+
 //DONOT DELETE OR COMMENT IT OUT BELOW CODE
 app.get("*", function(req, res) {
     if (!req.session.userId) {

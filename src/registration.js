@@ -35,10 +35,9 @@ export default class Registration extends React.Component {
     submitClick(e) {
         console.log("submitClick is running!!");
         e.preventDefault();
-        var that = this;
 
         axios
-            .post("/registration/submit", that.state)
+            .post("/registration/submit", this.state)
             .then(function({ data }) {
                 console.log("data in get/ user: ", data);
                 location.replace("/");
@@ -48,7 +47,7 @@ export default class Registration extends React.Component {
                     "error in submit click the registration form Info: ",
                     error
                 );
-                that.setState({ error: true });
+                this.setState({ error: true });
             });
     }
 
