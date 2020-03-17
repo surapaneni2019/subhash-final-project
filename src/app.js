@@ -10,10 +10,13 @@ import React from "react";
 import axios from "./axios";
 //import for the browser router purpose...a new import file..in part 6
 import Uploader from "./uploader";
+import ProfilePic from "./profilepic";
 import Profile from "./profile";
-import OtherProfile from "./Otherprofile";
-import Users from "./FindPeople";
-import { BrowserRouter, Route } from "react-router-dom";
+import OtherProfile from "./otherprofile";
+import FindPeople from "./FindPeople";
+import Friends from "./friends.js";
+import { chat } from "./chatencounter.js";
+import { BrowserRouter, Route, Link } from "react-router-dom";
 
 export default class App extends React.Component {
     constructor(props) {
@@ -30,19 +33,22 @@ export default class App extends React.Component {
             // its better to keep it shallow(leave empty this object..to not
             // make it complicated to look it in a big data...)its optional can leave this.state empty as well
         };
-        this.openUploader = this.openUploader.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
 
-    openUploader() {
-        console.log("click: open uploader");
-        this.setState({ uploaderVisible: true });
+    toggleModal() {
+        if (!this.state.uploaderVisible) {
+            this.setState({ uploaderVisible: true });
+        } else {
+            this.setState({ uploaderVisible: false });
+        }
     }
 
     componentDidMount() {
         axios
             .get("/user")
             .then(({ data }) => {
-                console.log("data: ", data);
+                console.log("data in /user: ", data);
                 this.setState(data);
             })
             .catch(function(error) {
@@ -52,53 +58,100 @@ export default class App extends React.Component {
     //to check if the ajax request is complete or not..
     render() {
         if (!this.state.id) {
-            return <img src="/progressbar.gif" alt="loading.." />; //if ajax request not completes it returns null..
+            return null; //if ajax request not completes it returns null..
         }
         return (
-            <BrowserRouter>
-                <div>
-                    <div id="head-container">
-                        <img src="/helpmelogo.jpg" alt="logo" />
-                        <img className="profilepic" src={this.state.image} />
-                    </div>
-                    <div id="profile">
-                        <Profile
-                            first={this.state.first}
-                            last={this.state.last}
-                            url={this.state.image}
-                            bio={this.state.bio}
-                            setbio={newBio =>
-                                this.setState({
-                                    bio: newBio
-                                })
-                            }
-                            onClick={this.openUploader}
-                        />
-                    </div>
-                    <Route
-                        path="/user/:id"
-                        render={props => (
-                            <OtherProfile
-                                key={props.match.imageUrl}
-                                match={props.match}
-                                history={props.history}
-                            />
-                        )}
+            <div>
+                <div className="header">
+                    <img />
+                    <img className="logo" src="/helpmelogo.jpg" alt="logo" />
+                    <ProfilePic
+                        first={this.state.first}
+                        last={this.state.last}
+                        url={this.state.url}
+                        toggleModal={e => this.toggleModal(e)}
                     />
-
-                    {this.state.uploaderVisible && (
-                        <Uploader
-                            finishedUploading={newUrl =>
-                                this.setState({
-                                    image: newUrl,
-                                    uploaderVisible: false
-                                })
-                            }
-                        />
-                    )}
-                    <Route path="/users" component={Users} />
                 </div>
-            </BrowserRouter>
+
+                <BrowserRouter>
+                    <div className="links-header">
+                        <Link className="find-friends" to="/friends">
+                            friends
+                        </Link>
+
+                        <Link className="find-friends" to="/recentusers">
+                            find people
+                        </Link>
+                    </div>
+
+                    <div>
+                        <Route
+                            exact
+                            path="/"
+                            render={() => (
+                                <Profile
+                                    id={this.state.id}
+                                    first={this.state.first}
+                                    last={this.state.last}
+                                    url={this.state.url}
+                                    bio={this.state.bio}
+                                    setbio={newBio =>
+                                        this.setState({
+                                            bio: newBio
+                                        })
+                                    }
+                                    toggleModal={e => this.toggleModal(e)}
+                                />
+                            )}
+                        />
+
+                        <Route
+                            path="/user/:id"
+                            render={props => (
+                                <OtherProfile
+                                    key={props.match.url}
+                                    match={props.match}
+                                    history={props.history}
+                                />
+                            )}
+                        />
+
+                        <Route
+                            path="/recentusers"
+                            render={props => (
+                                <FindPeople
+                                    key={props.match.id}
+                                    match={props.match}
+                                    history={props.history}
+                                    id={this.state.id}
+                                />
+                            )}
+                        />
+
+                        <Route
+                            path="/friends"
+                            render={props => (
+                                <Friends
+                                    key={props.match.id}
+                                    match={props.match}
+                                    history={props.history}
+                                    id={this.state.id}
+                                />
+                            )}
+                        />
+                    </div>
+                </BrowserRouter>
+
+                {this.state.uploaderVisible && (
+                    <Uploader
+                        finishedUploading={newUrl =>
+                            this.setState({
+                                url: newUrl
+                            })
+                        }
+                    />
+                )}
+            </div>
         );
     }
 }

@@ -38,7 +38,7 @@ export default class Uploader extends React.Component {
                 <h1> Please Upload your Profile Picture </h1>
                 <form>
                     <label htmlFor="file-upload" className="custom-file-upload">
-                        Uploaf picture
+                        Upload picture
                         <img
                             className="logo-upload"
                             src="download-file.svg"

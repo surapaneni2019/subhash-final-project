@@ -6,6 +6,8 @@ CREATE TABLE users(
      last VARCHAR(255) NOT NULL CHECK (last != ''),
      email VARCHAR(255) NOT NULL UNIQUE CHECK (email != ''),
      password VARCHAR(255) NOT NULL CHECK (password != ''),
+     bio VARCHAR(255),
+     url VARCHAR(255) NOT NULL DEFAULT 'defaultimage.jpg',
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
    );
 

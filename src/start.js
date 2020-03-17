@@ -4,7 +4,8 @@ import Welcome from "./welcome";
 //if you use the default in the export no need of curly paranthesis enclosed for
 //the Welcome function...
 import App from "./app";
-import axios from "./axios";
+// import axios from "./axios";
+import { init } from "./socket";
 
 ////////REDUX BOILER PLATE///////////////////////////////////
 import { Provider } from "react-redux";
@@ -17,7 +18,7 @@ const store = createStore(
     reducer,
     composeWithDevTools(applyMiddleware(reduxPromise))
 );
-import reducer from "./reducer";
+import reducer from "./reducer.js";
 ////////////////////BOILER PLATE ENDS///////////////////////////////
 
 //we need to create a reducer now...
@@ -32,6 +33,7 @@ if (location.pathname === "/welcome") {
     //render the registration page
     component = <Welcome />;
 } else {
+    init(store);
     //render the logo
     component = (
         <Provider store={store}>
