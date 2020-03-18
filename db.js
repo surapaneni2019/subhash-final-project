@@ -102,6 +102,35 @@ function getFriendsWannabes(user_id) {
     );
 }
 
+function getLastTenChatMessages() {
+    return db.query(
+        `SELECT chat.id, chat.created_at, user_id, first, image, message FROM chat
+        JOIN users
+        ON chat.user_id=users.id
+        ORDER BY chat.id DESC
+        LIMIT 10`
+    );
+}
+
+function insertNewMessage(msg, id) {
+    return db.query(
+        `INSERT INTO chat (user_id, message)
+        VALUES ($1, $2)
+        RETURNING id`,
+        [id, msg]
+    );
+}
+
+function getMessageUser(id) {
+    return db.query(
+        `SELECT chat.id, chat.created_at, user_id, first, image, message FROM chat
+        JOIN users
+        ON chat.user_id=users.id
+        WHERE chat.id=$1`,
+        [id]
+    );
+}
+
 exports.registerUser = registerUser;
 exports.verifyUser = verifyUser;
 exports.insertResetCode = insertResetCode;
@@ -117,3 +146,6 @@ exports.makeFriendRequest = makeFriendRequest;
 exports.acceptFriendRequest = acceptFriendRequest;
 exports.endFriendship = endFriendship;
 exports.getFriendsWannabes = getFriendsWannabes;
+exports.getLastTenChatMessages = getLastTenChatMessages;
+exports.insertNewMessage = insertNewMessage;
+exports.getMessageUser = getMessageUser;

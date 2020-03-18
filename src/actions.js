@@ -1,6 +1,7 @@
 //src/actions.js is the file location...
 
 import axios from "./axios";
+import reducer from "./reducer.js";
 
 export async function receiveFriendsWannabes() {
     try {
@@ -43,6 +44,20 @@ export async function unfriend(user) {
     } catch (error) {
         console.log("error in unfriend: ", error);
     }
+}
+
+export function chatMessages(msgs) {
+    return {
+        type: "GET_LAST_10",
+        chatMessages: msgs
+    };
+}
+
+export function newMessage(msg) {
+    return {
+        type: "NEW_MESSAGE",
+        chatMessage: msg
+    };
 }
 
 /* we write 3 functions within in this file:

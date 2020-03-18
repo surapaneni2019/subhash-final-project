@@ -33,13 +33,13 @@ export default class BioEditor extends React.Component {
     submitClick(e) {
         e.preventDefault();
 
-        console.log("this.state.bio", this.state.bio);
+        console.log("this.state.bio: ", this.state.bio);
 
         axios
             .post("/uploadbio", this.state)
             .then(({ data }) => {
-                console.log("this", this);
-                console.log("data", data);
+                console.log("this: ", this);
+                console.log("data: ", data);
                 this.props.setBio(data);
 
                 this.setState({ bioEditorIsVisible: false });
@@ -79,7 +79,7 @@ export default class BioEditor extends React.Component {
                                 id="form_bio"
                             >
                                 <label htmlFor="bio">
-                                    ADD OR EDIT YOUR BIO
+                                    Add or Edit your Bio
                                 </label>
                                 <textarea
                                     className="bioeditor-textarea"

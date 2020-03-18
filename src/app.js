@@ -15,7 +15,7 @@ import Profile from "./profile";
 import OtherProfile from "./otherprofile";
 import FindPeople from "./FindPeople";
 import Friends from "./friends.js";
-import { chat } from "./chatencounter.js";
+import chat from "./chat.js";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 
 export default class App extends React.Component {

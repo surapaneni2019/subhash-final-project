@@ -1,6 +1,52 @@
 //src/reducer.js is the file location...
 
 export default function(state = {}, action) {
+    if (action.type === "friends-wannabe") {
+        return { ...state, friendsWannabes: action.friendsWannabes };
+    }
+
+    if (action.type === "acceptFriendRequest") {
+        return {
+            ...state,
+            friendsWannabes: state.friendsWannabes.map(element => {
+                if (element.id == action.id) {
+                    return { ...element, accepted: true };
+                } else {
+                    return element;
+                }
+            })
+        };
+    }
+
+    if (action.type === "unfriend") {
+        console.log(action.friendshipsended);
+        return {
+            ...state,
+            friendsWannabes: state.friendsWannabes.filter(element => {
+                console.log("friendsWannabes", state.friendsWannabes);
+                console.log("action.id", action.id);
+                console.log("element.id", element.id);
+                if (element.id !== action.id) {
+                    return element;
+                }
+            })
+        };
+    }
+
+    if (action.type === "GET_LAST_10") {
+        state = {
+            ...state,
+            msgs: action.chatMessages
+        };
+    }
+
+    if (action.type === "NEW_MESSAGE") {
+        state = {
+            ...state,
+            msgs: state.msgs.concat(action.chatMessage)
+        };
+    }
+
     return state;
 }
 
