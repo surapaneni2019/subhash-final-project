@@ -24,7 +24,7 @@ export async function acceptFriendRequest(user) {
         console.log("data - acceptFriendRequest: ", data);
         return {
             type: "acceptFriendRequest",
-            id: data.id
+            id: data.sender_id
         };
     } catch (error) {
         console.log("error in acceptFriendRequest: ", error);
@@ -38,8 +38,8 @@ export async function unfriend(user) {
         });
         console.log("data - unfriend: ", data);
         return {
-            type: "friendships-ended",
-            id: data.otherUser_id
+            type: "unfriend",
+            id: data
         };
     } catch (error) {
         console.log("error in unfriend: ", error);

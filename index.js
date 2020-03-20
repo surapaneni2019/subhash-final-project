@@ -109,6 +109,27 @@ app.get("/welcome", function(req, res) {
     }
 });
 
+///LOGOUT///
+app.get("/logout", (req, res) => {
+    req.session.userId = null;
+    res.redirect("/welcome");
+});
+
+//DELETE ACCOUNT
+app.get("/deleteaccount", async (req, res) => {
+    let user_id = req.session.userId;
+    s3.delete(user_id.toString());
+    try {
+        const deleteFriendInfo = await db.deleleInfoFriendship(user_id);
+        const deleteMsgs = await db.deleteMsgs(user_id);
+        const deleteAccount = await db.deleleAccount(user_id);
+        req.session.userId = null;
+        res.redirect("/welcome");
+    } catch (error) {
+        console.log("error in delete account: ", error);
+    }
+});
+
 app.post("/registration/submit", (req, res) => {
     console.log("req.body: ", req.body);
     let first = req.body.first;
@@ -165,52 +186,52 @@ app.post("/login/submit", (req, res) => {
                         let id = result.rows[0].id;
                         req.session.userId = id;
                         console.log("req.session.userId", req.session.userId);
-
-                        return res.json(result);
+                        res.redirect("/");
                     } else {
-                        return res.sendStatus(500);
+                        return res.json({ error: true });
                     }
                 })
                 .catch(error => {
                     console.log("error", error);
-                    return res.sendStatus(500);
+                    return res.json({ error: true });
                     // return res.redirect(500, "/welcome");
                 });
         })
         .catch(error => {
             console.log("error", error);
-            return res.redirect(500, "/welcome");
+            return res.json({ error: true });
         });
 });
 
 app.post("/password/reset/start", (req, res) => {
     let email = req.body.email;
-    let subject = "hey Subhash";
+    let subject = "reset your password code for socialnetwork";
     let code = cryptoRandomString({ length: 10 });
-    let message =
-        "Please use the following code to reset your password of your HelpMe Account: " +
-        secretCode;
-    console.log("secretCode: ", secretCode);
+    let message = code;
 
     db.verifyUser(email)
         .then(result => {
-            console.log("code: ", code);
-
-            db.insertResetCode(email, code)
-                .then(result => {
-                    return ses.sendEmail(email, subject, message);
-                })
-                .then(result => {
-                    return res.json({ reset: true });
-                })
-                .catch(error => {
-                    console.log("error: ", error);
-                    return res.sendStatus(500);
-                });
+            console.log("result: ", result);
+            if (result.rows.length == 0) {
+                console.log("false");
+                return res.json({ error: true });
+            } else {
+                db.insertResetCode(email, code)
+                    .then(result => {
+                        return ses.sendEmail(email, subject, message);
+                    })
+                    .then(result => {
+                        return res.json({ reset: true });
+                    })
+                    .catch(error => {
+                        console.log("error: ", error);
+                        return res.json({ error: true });
+                    });
+            }
         })
         .catch(error => {
             console.log("error: ", error);
-            return res.sendStatus(500);
+            return res.json({ error: true });
         });
 });
 
@@ -250,15 +271,15 @@ app.post("/password/reset/verify", (req, res) => {
                             })
                             .catch(error => {
                                 console.log("error", error);
-                                return res.sendStatus(500);
+                                return res.json({ error: true });
                             });
                     })
                     .catch(err => {
                         console.log("error", err);
-                        return res.sendStatus(500);
+                        return res.json({ error: true });
                     });
             } else {
-                return res.sendStatus(500);
+                return res.json({ error: true });
             }
         })
         .catch(err => {
@@ -272,9 +293,14 @@ app.get("/user", (req, res) => {
     let id = req.session.userId;
     // console.log("req.session.userId", req.session.userId);
     db.getInfoUser(id)
-        .then(({ rows }) => {
-            console.log("rows: ", rows);
-            res.json(rows[0]);
+        .then(result => {
+            return res.json({
+                id: req.session.userId,
+                first: result.rows[0].first,
+                last: result.rows[0].last,
+                bio: result.rows[0].bio,
+                url: result.rows[0].url
+            });
         })
         .catch(error => {
             console.log("error in getUser: ", error);
@@ -314,19 +340,14 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
 
         db.addImage(url, id)
             .then(function(result) {
-                console.log("image result");
-                console.log(result.rows[0].image);
-                res.json({
-                    image: result.rows[0].image
-                });
+                console.log("result in addImage: ", result);
+                return res.json(url);
             })
             .catch(error => {
                 console.log("error in uploading Image: ", error);
             });
     } else {
-        res.json({
-            success: false
-        });
+        return res.sendStatus(500);
     }
 });
 
@@ -349,7 +370,7 @@ app.post("/uploadbio", (req, res) => {
 });
 
 /////find users //////
-//the get request url
+//It is to get request url
 app.get("/api/recentusers", (req, res) => {
     let user_id = req.session.userId;
     db.getRecentUsers()
@@ -486,8 +507,11 @@ app.post("/accept-friend-request", (req, res) => {
 
     db.acceptFriendRequest(otherUser_id, user_id)
         .then(function(result) {
-            console.log("result post request /accept-friend-request", result);
-            return res.json(result);
+            console.log(
+                "result post request /accept-friend-request",
+                result.rows[0]
+            );
+            return res.json(result.rows[0]);
         })
         .catch(function(error) {
             console.log(
@@ -507,13 +531,34 @@ app.post("/end-friendship", (req, res) => {
 
     db.endFriendship(otherUser_id, user_id)
         .then(function(result) {
-            //console.log("result post request /end friendship: ", result);
-            return res.json(result);
+            console.log("result post request /end friendship: ", result);
+            return res.json(otherUser_id);
         })
         .catch(function(error) {
             console.log("error in post/request /end friendship: ", error);
         });
 });
+
+{
+    /*
+//POST EXCHANGE
+app.post("/postexchange", (req, res) => {
+    console.log("post");
+    let author_user_id = req.session.userId;
+    console.log("req.body in postexchange: ", req.body);
+    const { title, city, description } = req.body;
+
+    db.insertExchange(title, city, description, author_user_id)
+        .then(function(result) {
+            console.log("result in posting exchange: ", result);
+            return res.json(result.rows[0]);
+        })
+        .catch(function(error) {
+            console.log("error in insertExchange: ", error);
+        });
+});
+*/
+}
 
 //DONOT DELETE OR COMMENT IT OUT BELOW CODE
 app.get("*", function(req, res) {
@@ -536,30 +581,49 @@ io.on("connection", function(socket) {
     }
 
     const userId = socket.request.session.userId;
-
-    /* ... */
-
     // if user make it here, it means they have logged into our socialnetwork
     //and they have succesfully connected to the sockets
 
-    //we need to listenfor anew chatmessages being emitted...
-    // socket.on("mufin", myMuffin => {
-    //     console.log("myMuffin on the server: ", myMuffin);
-    //     //emits a message to everyone to the socialnetwork
-    //     io.sockets.emit("muffinMagic: ", myMuffin);
-    // });
+    socket.on("newMessages", msgs => {
+        let message = msgs;
+        let user_id = userId;
 
-    socket.on("newMessages", msg => {
-        console.log("msg: ", msg);
-        // console.log("userId in newMessage: ", id);
-        db.insertNewMessage(msg, userId).then(results => {
-            // console.log('results.rows[0].id: ', results.rows[0].id);
-            db.getMessageUser(results.rows[0].id).then(data => {
-                console.log("data.rows: ", data.rows);
-                io.sockets.emit("newMessages", data.rows);
-            });
-        });
+        db.insertNewMessage(user_id, message)
+            .then(result => {
+                const data = result.rows[0];
+
+                db.getMessageUser(user_id)
+                    .then(result => {
+                        const infoMsg = result.rows[0];
+                        const fullInfo = { ...data, ...infoMsg };
+                        msgs = fullInfo;
+
+                        console.log("msg", msgs);
+                        io.sockets.emit("msg", msgs);
+                    })
+                    .catch(error =>
+                        console.log("error in getMessageUser", error)
+                    );
+            })
+            .catch(error => console.log("error in insertNewMessage", error));
     });
+
+    // console.log("msg: ", msg);
+    // // console.log("userId in newMessage: ", id);
+    // db.insertNewMessage(msg, userId)
+    //     .then(results => {
+    //         console.log("results.rows[0].id: ", results.rows[0].id);
+    //         db.getMessageUser(results.rows[0].id)
+    //             .then(data => {
+    //                 console.log("data.rows: ", data.rows);
+    //                 io.sockets.emit("newMessages", data.rows);
+    //             })
+    //             .catch(error =>
+    //                 console.log("error in storeNewMessage", error)
+    //             );
+    //     })
+    //     .catch(error => console.log("error in storeNewMessage", error));
+
     // it is good time to go and get last 10 chat messages...
     db.getLastTenChatMessages()
         .then(results => {

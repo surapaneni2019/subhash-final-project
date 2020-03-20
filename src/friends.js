@@ -43,7 +43,7 @@ export default function Friends() {
                             key={user.id}
                         >
                             <span className="friends-requesters">
-                                FRIEND REQUEST
+                                Friend Request
                             </span>
 
                             <img

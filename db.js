@@ -104,30 +104,64 @@ function getFriendsWannabes(user_id) {
 
 function getLastTenChatMessages() {
     return db.query(
-        `SELECT chat.id, chat.created_at, user_id, first, image, message FROM chat
-        JOIN users
-        ON chat.user_id=users.id
-        ORDER BY chat.id DESC
-        LIMIT 10`
+        `SELECT users.id, users.first, users.last,
+                chat.user_id, chat.message, chat.id, chat.created_at
+                FROM chat LEFT JOIN users ON users.id = chat.user_id
+               ORDER BY chat.id DESC LIMIT 10`
     );
 }
 
-function insertNewMessage(msg, id) {
+function insertNewMessage(user_id, message) {
     return db.query(
         `INSERT INTO chat (user_id, message)
         VALUES ($1, $2)
-        RETURNING id`,
-        [id, msg]
+        RETURNING *`,
+        [user_id, message]
     );
 }
 
-function getMessageUser(id) {
+function getMessageUser(user_id) {
+    return db.query(`SELECT  first, last FROM users WHERE id = $1`, [user_id]);
+}
+
+function insertExchange(title, city, description, author_user_id) {
     return db.query(
-        `SELECT chat.id, chat.created_at, user_id, first, image, message FROM chat
-        JOIN users
-        ON chat.user_id=users.id
-        WHERE chat.id=$1`,
-        [id]
+        `INSERT INTO exchange(title, city, description, author_user_id)
+VALUES ($1, $2, $3, $4) RETURNING id`,
+        [title, city, description, author_user_id]
+    );
+}
+
+function getLastExchanges() {
+    return db.query(
+        `SELECT users.id, users.first, users.last,
+        exchange.author_user_id, exchange.title, exchange.description, exchange.created_at
+        FROM exchange LEFT JOIN users ON users.id = exchange.author_user_id
+       ORDER BY exchange.id DESC LIMIT 10`
+    );
+}
+
+function deleleAccount(user_id) {
+    return db.query(
+        `DELETE FROM users
+        WHERE id = $1`,
+        [user_id]
+    );
+}
+
+function deleleInfoFriendship(user_id) {
+    return db.query(
+        `DELETE FROM friendships
+        WHERE receiver_id = $1 OR sender_id = $1`,
+        [user_id]
+    );
+}
+
+function deleteMsgs(user_id) {
+    return db.query(
+        `DELETE FROM messages
+        WHERE user_id = $1`,
+        [user_id]
     );
 }
 
@@ -149,3 +183,8 @@ exports.getFriendsWannabes = getFriendsWannabes;
 exports.getLastTenChatMessages = getLastTenChatMessages;
 exports.insertNewMessage = insertNewMessage;
 exports.getMessageUser = getMessageUser;
+exports.insertExchange = insertExchange;
+exports.getLastExchanges = getLastExchanges;
+exports.deleleAccount = deleleAccount;
+exports.deleleInfoFriendship = deleleInfoFriendship;
+exports.deleteMsgs = deleteMsgs;

@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from "./react";
+import React, { useEffect, useRef } from "react";
 import { socket } from "./socket.js";
 import { useSelector } from "react-redux";
+import Moment from "react-moment";
+import "moment-timezone";
 
 export default function Chat() {
     const chatMessages = useSelector(state => state && state.msgs);
-    console.log("here are my last tenChatMessages: ", chatMessages);
+    console.log("here are my lastTenChatMessages: ", chatMessages);
 
     const elementRef = useRef();
 
@@ -28,15 +30,40 @@ export default function Chat() {
         }
     };
     return (
-        <div className="chat">
-            <h1> Chat Room </h1>
-            <div className="chat-container" ref={elementRef}>
-                <p> your chat message chere make it dynamic.. </p>
+        <div className="chat-container">
+            <span className="chat-title"> Chat </span>
+            <div className="chat" ref={elementRef}>
+                {chatMessages &&
+                    chatMessages.map(msg => (
+                        <div className="message" key={msg.id}>
+                            <div className="image-info-msg">
+                                <a href={`./user/${msg.user_id}`}>
+                                    <img
+                                        className="chat-img"
+                                        src={msg.url || "/defaultimage.jpg"}
+                                        alt={(msg.first, msg.last)}
+                                    />
+                                </a>
+                                &nbsp;{msg.first} {msg.last}
+                                &nbsp;---&nbsp;
+                                <span className="chat-date">
+                                    <Moment fromNow>{msg.created_at}</Moment>
+                                </span>
+                            </div>
+
+                            <br />
+                            {msg.message}
+                        </div>
+                    ))}
+
+                <textarea
+                    rows="4"
+                    cols="50"
+                    placeholder="Drop your message here"
+                    onKeyDown={keyCheck}
+                    className="chat-textarea"
+                ></textarea>
             </div>
-            <textarea
-                placeholder="Add your Mesage here"
-                onKeyDown={keyCheck}
-            ></textarea>
         </div>
     );
 }

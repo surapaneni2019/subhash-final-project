@@ -13,12 +13,12 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
 import reduxPromise from "redux-promise";
 import { composeWithDevTools } from "redux-devtools-extension";
+import reducer from "./reducer.js";
 
 const store = createStore(
     reducer,
     composeWithDevTools(applyMiddleware(reduxPromise))
 );
-import reducer from "./reducer.js";
 ////////////////////BOILER PLATE ENDS///////////////////////////////
 
 //we need to create a reducer now...

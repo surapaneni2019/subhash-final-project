@@ -1,9 +1,6 @@
 import React from "react";
-import Registration from "./registration";
-import Login from "./login";
 import axios from "./axios";
 import { Link } from "react-router-dom";
-import { HashRouter, Route } from "react-router-dom";
 
 export default class ResetPassword extends React.Component {
     constructor(props) {
@@ -20,7 +17,8 @@ export default class ResetPassword extends React.Component {
 
     handleChange(e) {
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            error: false
         }),
             () => console.log("this.state", this.state);
     }
@@ -30,19 +28,31 @@ export default class ResetPassword extends React.Component {
 
         if (this.state.currentDisplay == 1) {
             const { email } = this.state;
-            console.log("this.state: ", this.state);
+            // console.log("this.state: ", this.state);
+            if (
+                !this.state.email ||
+                this.state.email.length < 3 ||
+                !this.state.email.includes("@")
+            ) {
+                this.setState({ error: true });
+                return;
+            }
 
             var me = this;
 
             axios
                 .post("/password/reset/start", me.state)
                 .then(function({ data }) {
-                    console.log("this.state in password/restart", me.state);
-                    me.setState({ currentDisplay: 2 });
+                    // console.log("this.state in password/restart", me.state);
+                    if (data.error) {
+                        me.setState({ error: true });
+                    } else {
+                        me.setState({ currentDisplay: 2 });
+                    }
                 })
                 .catch(function(error) {
                     console.log(
-                        "error in submit click for regsitration info",
+                        "error in the submit click for Registration Info: ",
                         error
                     );
 
@@ -50,42 +60,36 @@ export default class ResetPassword extends React.Component {
                 });
         } else if (this.state.currentDisplay == 2) {
             const { code, password } = this.state;
+            if (!this.state.code || !this.state.password) {
+                this.setState({ error: true });
+                return;
+            }
 
-            var me = this;
             axios
                 .post("/password/reset/verify", me.state)
                 .then(function({ data }) {
-                    console.log("this.state in password/restart", me.state);
+                    // console.log("this.state in password/restart", me.state);
                     me.setState({ currentDisplay: 3 });
                 })
                 .catch(function(error) {
                     console.log(
-                        "error in submit click for regsitration info",
+                        "error in submit click for Registration Info: ",
                         error
                     );
 
-                    this.setState({ error: true });
+                    me.setState({ error: true });
                 });
         }
     }
     render() {
-        const { currentDisplay } = this.state;
-        // let elem;
-        // if(currentDisplay == 1) {
-        //     let elem = (
-        //         <div>
-        //         <inout/>
-        //         </div>
-        //     );
-        // }else
         return (
-            <div>
-                {currentDisplay == 1 && (
-                    <div>
+            <div className="reset">
+                {this.state.currentDisplay == 1 && (
+                    <div className="reset-part1">
+                        <h1 className="welcome"> Reset Password </h1>
                         <form>
                             <label htmlFor="email">
-                                Please Enter the E-mail with the one you
-                                registered with
+                                Please Enter your registered E-mail
                             </label>
                             <input
                                 onChange={this.handleChange}
@@ -94,19 +98,27 @@ export default class ResetPassword extends React.Component {
                                 placeholder="email"
                                 autoComplete="off"
                             />
-                            <button onClick={this.submitClick}> Submit </button>
+                            <button
+                                className="reset"
+                                onClick={this.submitClick}
+                            >
+                                Submit
+                            </button>
                             {this.state.error && (
-                                <span className="error">
-                                    Ahh Uhh!, Checkitout something gone wrong!
+                                <span className="error-reset">
+                                    Ahh Uhh!, Check out your email entered
+                                    something was wrong!
                                 </span>
                             )}
                         </form>
                     </div>
                 )}
-                {currentDisplay == 2 && (
-                    <div>
+                {this.state.currentDisplay == 2 && (
+                    <div className="reset-part2">
                         <form>
-                            <label htmlFor="code"> Code </label>
+                            <label className="reset" htmlFor="code">
+                                Code
+                            </label>
                             <input
                                 onChange={this.handleChange}
                                 name="code"
@@ -115,7 +127,9 @@ export default class ResetPassword extends React.Component {
                                 autoComplete="off"
                             />
 
-                            <label htmlFor="password"> Password </label>
+                            <label className="reset" htmlFor="password">
+                                New Password
+                            </label>
                             <input
                                 onChange={this.handleChange}
                                 name="password"
@@ -123,18 +137,30 @@ export default class ResetPassword extends React.Component {
                                 placeholder="password"
                                 autoComplete="off"
                             />
-                            <button onClick={this.submitClick}> Submit </button>
+                            <button
+                                className="reset-button"
+                                onClick={this.submitClick}
+                            >
+                                Submit
+                            </button>
                             {this.state.error && (
                                 <span className="error">
-                                    Ahh Uhh! Check it out, Something gone wrong!
+                                    Ahh Uhh! Recheck your entered Code sent to
+                                    your email, Code Doesnt match!
                                 </span>
                             )}
                         </form>
                     </div>
                 )}
-                {currentDisplay == 3 && (
-                    <div>
-                        <h1> yesssssssssssss! </h1>
+                {this.state.currentDisplay == 3 && (
+                    <div className="password-reset">
+                        <span>
+                            yesssssssssssss! you have changed your password
+                        </span>
+
+                        <Link className="link-auth" to="/login">
+                            Login here
+                        </Link>
                     </div>
                 )}
             </div>

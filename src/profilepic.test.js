@@ -7,7 +7,7 @@ import { render, fireEvent } from "@testing-library/react";
 test("renders default image when there is no url prop", () => {
     const { container } = render(<ProfilePic />);
     // console.log(container.querySelector("img").src);
-    expect(container.querySelector("img").src).toContain("/default.jpg");
+    expect(container.querySelector("img").src).toContain("/defaultimage.jpg");
     // expect(container.querySelector("img").src).toContain("/adsadaldjlsajdlsadefault.jpg");
 });
 

@@ -9,13 +9,15 @@ import React from "react";
 //the App...
 import axios from "./axios";
 //import for the browser router purpose...a new import file..in part 6
-import Uploader from "./uploader";
-import ProfilePic from "./profilepic";
-import Profile from "./profile";
-import OtherProfile from "./otherprofile";
-import FindPeople from "./FindPeople";
+import Uploader from "./uploader.js";
+import Login from "./login.js";
+import ProfilePic from "./profilepic.js";
+import Profile from "./profile.js";
+// import Exchange from "./exchange.js";
+import OtherProfile from "./otherprofile.js";
+import FindPeople from "./findpeople.js";
 import Friends from "./friends.js";
-import chat from "./chat.js";
+import Chat from "./chat.js";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 
 export default class App extends React.Component {
@@ -26,14 +28,16 @@ export default class App extends React.Component {
             first: null,
             last: null,
             url: null,
-            image: null,
             id: null,
             bio: null,
-            setbio: null
+            setbio: null,
+            deleteAccountCheckVisible: false
             // its better to keep it shallow(leave empty this object..to not
             // make it complicated to look it in a big data...)its optional can leave this.state empty as well
         };
         this.toggleModal = this.toggleModal.bind(this);
+        this.deleteaccountcheck = this.deleteaccountcheck.bind(this);
+        this.closedeleteAccountCheck = this.closedeleteAccountCheck.bind(this);
     }
 
     toggleModal() {
@@ -52,35 +56,117 @@ export default class App extends React.Component {
                 this.setState(data);
             })
             .catch(function(error) {
-                console.log("error in componentDidMount App", error);
+                console.log("error in componentDidMount App: ", error);
             });
     }
+    logout() {
+        axios
+            .get("/logout")
+            .then(({ data }) => {
+                location.replace("/welcome");
+            })
+            .catch(function(error) {
+                console.log("error in /logout: ", error);
+            });
+    }
+    deleteaccountcheck() {
+        this.setState({ deleteAccountCheckVisible: true });
+    }
+
+    closedeleteAccountCheck() {
+        this.setState({ deleteAccountCheckVisible: false });
+    }
+
+    deleteaccount() {
+        axios
+            .get("/deleteaccount")
+            .then(({ data }) => {
+                location.replace("/welcome");
+            })
+            .catch(function(error) {
+                console.log("error in /deleteaccount: ", error);
+            });
+    }
+
     //to check if the ajax request is complete or not..
     render() {
         if (!this.state.id) {
             return null; //if ajax request not completes it returns null..
         }
         return (
-            <div>
+            <>
                 <div className="header">
-                    <img />
                     <img className="logo" src="/helpmelogo.jpg" alt="logo" />
-                    <ProfilePic
-                        first={this.state.first}
-                        last={this.state.last}
-                        url={this.state.url}
-                        toggleModal={e => this.toggleModal(e)}
-                    />
                 </div>
-
                 <BrowserRouter>
+                    <div className="profile-section">
+                        <ProfilePic
+                            first={this.state.first}
+                            last={this.state.last}
+                            url={this.state.url}
+                            toggleModal={e => this.toggleModal(e)}
+                        />
+                        <Link className="profile-section-link" to="/">
+                            Edit Bio
+                        </Link>
+                        <span
+                            className="profile-section-link"
+                            onClick={this.deleteaccountcheck}
+                        >
+                            Delete Account
+                        </span>
+
+                        <span
+                            className="profile-section-link"
+                            onClick={this.logout}
+                        >
+                            Logout
+                        </span>
+                    </div>
+
+                    {this.state.deleteAccountCheckVisible && (
+                        <div className="deleteaccount-confirm">
+                            <div
+                                className="close-info"
+                                onClick={this.closedeleteAccountCheck}
+                            >
+                                X
+                            </div>
+                            <span className="deleteaccount">
+                                Are you sure you wanna delete your account? All
+                                your data and activity will be deleted.
+                            </span>
+                            <br />
+                            <span
+                                className="deleteaccount-decision"
+                                onClick={this.deleteaccount}
+                            >
+                                Yup! Delete my Account
+                            </span>
+                            <span
+                                className="deleteaccount-decision"
+                                onClick={this.closedeleteAccountCheck}
+                            >
+                                Cancel
+                            </span>
+                        </div>
+                    )}
+
                     <div className="links-header">
+                        <Link className="find-friends" to="/chat">
+                            Chat
+                        </Link>
+
+                        {/* <Link className="find-friends" to="/exchange">
+                            Exchange
+                        </Link> */}
+
                         <Link className="find-friends" to="/friends">
-                            friends
+                            Friends
                         </Link>
 
                         <Link className="find-friends" to="/recentusers">
-                            find people
+                            Find People
                         </Link>
                     </div>
 
@@ -139,6 +225,18 @@ export default class App extends React.Component {
                                 />
                             )}
                         />
+
+                        {/*
+                            <Route
+                            path="/exchange"
+                            render={props => <Exchange key={props.match.id} />}
+                            />
+                            */}
+
+                        <Route
+                            path="/chat"
+                            render={props => <Chat key={props.match.id} />}
+                        />
                     </div>
                 </BrowserRouter>
 
@@ -151,7 +249,7 @@ export default class App extends React.Component {
                         }
                     />
                 )}
-            </div>
+            </>
         );
     }
 }

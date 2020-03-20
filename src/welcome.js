@@ -18,19 +18,27 @@ import { HashRouter, Route } from "react-router-dom";
 export default function Welcome() {
     return (
         <div id="welcome">
-            <h1> Welcome to my social network </h1>
-            <img src="helpmelogo.jpg" alt="logo" />
-            <HashRouter>
-                <div>
-                    <Route exact path="/" component={Registration} />
+            <div className="title-socialnetwork">
+                <h1 calssName="welcome"> Welcome to ASKME network </h1>
+                <h1 calssName="welcome"> Tryit Out! </h1>
+                <img src="helpmelogo.jpg" alt="logo" />
+
+                <HashRouter>
+                    <div className="auth-link-wrapper">
+                        <Link className="auth-link" to="/login">
+                            Already Registered: Login here
+                        </Link>
+                        <br />
+                        <Link className="auth-link" to="/register">
+                            Register
+                        </Link>
+                    </div>
+
+                    <Route exact path="/register" component={Registration} />
                     <Route exact path="/login" component={Login} />
                     <Route exact path="/reset" component={ResetPassword} />
-                    <Link to="/login"> Login </Link>
-                    <Link to="/reset"> Reset your Password </Link>
-                    <b></b>
-                    <a href="/logout">logout</a>
-                </div>
-            </HashRouter>
+                </HashRouter>
+            </div>
         </div>
     );
 }
@@ -55,4 +63,4 @@ export default function Welcome() {
 // }
 //<a href="#login"> login  </a>
 //<a href ="/logout">logout </a>
-//all the route ocmponents must have the HashRouter as an ancestor...
+//all the route components must have the HashRouter as an ancestor...

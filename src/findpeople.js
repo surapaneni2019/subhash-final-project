@@ -57,7 +57,7 @@ export default function FindPeople() {
                     <div className="recent-users">
                         {users && (
                             <span className="findpeople">
-                                most recent users
+                                Most Recent Users
                             </span>
                         )}
                         {users &&
@@ -65,10 +65,7 @@ export default function FindPeople() {
                                 <div key={user.id} className="otherprofiles">
                                     <img
                                         className="otherprofile"
-                                        src={
-                                            user.url ||
-                                            "/default-user-avatar.png"
-                                        }
+                                        src={user.url || "/defaultiamge.jpg"}
                                         alt={(user.first, user.last)}
                                     />
 
